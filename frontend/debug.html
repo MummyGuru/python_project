@@ -29,11 +29,10 @@
                 statusEl.textContent = 'Выполняется вход...';
                 statusEl.className = 'status';
                 
-                // 1. Логинимся
                 const res = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: 'admin', password: 'admin123' }) // <-- Твои креды
+                    body: JSON.stringify({ username: 'admin', password: 'admin123' })
                 });
                 
                 if (!res.ok) throw new Error('Ошибка входа (проверь логин/пароль)');
@@ -41,7 +40,6 @@
                 const data = await res.json();
                 const token = data.access_token;
                 
-                // 2. Формируем объект авторизации для Swagger UI
                 // Ключ "BearerAuth" стандартный для FastAPI
                 const authData = {
                     "BearerAuth": {
@@ -51,13 +49,11 @@
                     }
                 };
                 
-                // 3. Сохраняем в LocalStorage (Swagger подхватит это)
                 localStorage.setItem('swagger-ui-authorized', JSON.stringify(authData));
                 
                 statusEl.textContent = 'Успех! Переход в Swagger...';
                 statusEl.className = 'status success';
                 
-                // 4. Открываем Swagger
                 setTimeout(() => {
                     window.location.href = '/docs';
                 }, 500);

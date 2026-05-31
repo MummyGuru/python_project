@@ -114,7 +114,6 @@ function getRoleName(role) {
 }
 
 function applyRoleBasedUI(role) {
-    // Скрываем/показываем элементы в зависимости от роли
     const permissions = PERMISSIONS[role];
     
     if (!permissions.canAddProducts) {
@@ -129,7 +128,6 @@ function applyRoleBasedUI(role) {
         document.querySelectorAll('.btn-create-reservation').forEach(btn => btn.style.display = 'none');
     }
     
-    // Показываем/скрываем разделы
     if (!permissions.canViewReports) {
         document.querySelector('[data-section="reports"]').style.display = 'none';
     }

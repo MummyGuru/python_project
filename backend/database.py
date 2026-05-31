@@ -13,20 +13,16 @@ password_encoded = quote_plus(DB_PASSWORD)
 
 DATABASE_URL = f"mssql+pyodbc://{DB_USER}@{DB_HOST}/{DB_NAME}?driver={DB_DRIVER}&Trusted_Connection=yes"
 
-# Создаём движок
 engine = create_engine(
     DATABASE_URL,
-    pool_pre_ping=True,  # Проверка соединения перед использованием
-    echo=True           # True для видимости вывода запросов в консоли
+    pool_pre_ping=True,
+    echo=True
 )
 
-# SessionLocal
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Базовый класс для моделей
 Base = declarative_base()
 
-# Зависимость для FastAPI
 def get_db():
     db = SessionLocal()
     try:

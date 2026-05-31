@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Optional
-from jose import JWTError, jwt  # pip install python-jose[cryptography]
+from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models import User
 
-SECRET_KEY = "your-secret-key-here"  # Use environment variable in production!
+SECRET_KEY = "your-secret-key-here"  # в продакшне можно изменить ключ
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 

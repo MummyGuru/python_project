@@ -13,15 +13,12 @@ function initNavigation() {
         btn.addEventListener('click', function() {
             const section = this.dataset.section;
             
-            // Убираем активный класс со всех кнопок и секций
             navButtons.forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             
-            // Добавляем активный класс текущей кнопке и секции
             this.classList.add('active');
             document.getElementById(`${section}-section`).classList.add('active');
             
-            // Загружаем данные для секции
             loadSectionData(section);
         });
     });

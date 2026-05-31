@@ -7,8 +7,10 @@ class UserBase(BaseModel):
     username: str
     role: str
 
-class UserCreate(UserBase):
+class UserCreate(BaseModel):
+    username: str
     password: str
+    role: str = "warehouse"
     
     @field_validator('role')
     @classmethod
@@ -17,8 +19,10 @@ class UserCreate(UserBase):
             raise ValueError('Role must be admin, manager, or warehouse')
         return v
 
-class UserOut(UserBase):
+class UserOut(BaseModel):
     id: int
+    username: str
+    role: str
     model_config = ConfigDict(from_attributes=True)
 
 # ==================== AUTH ====================
@@ -31,6 +35,23 @@ class TokenResponse(BaseModel):
     token_type: str
     user: UserOut
 
+# ==================== CATEGORIES ====================
+class CategoryBase(BaseModel):
+    name: str
+
+class CategoryOut(CategoryBase):
+    id: int
+    model_config = ConfigDict(from_attributes=True)
+
+# ==================== LOCATIONS ====================
+class LocationBase(BaseModel):
+    code: str
+    name: Optional[str] = None
+
+class LocationOut(LocationBase):
+    id: int
+    model_config = ConfigDict(from_attributes=True)
+
 # ==================== PRODUCTS ====================
 class ProductBase(BaseModel):
     sku: str
@@ -38,13 +59,37 @@ class ProductBase(BaseModel):
     category_id: Optional[int] = None
     unit: str = "шт"
     min_stock: float = 0.0
+    price: float = 0.0
     status: str = "active"
 
 class ProductCreate(ProductBase):
-    pass
+    initial_quantity: float = 0.0 
 
 class ProductOut(ProductBase):
     id: int
+    model_config = ConfigDict(from_attributes=True)
+
+# ==================== BATCHES ====================
+class BatchBase(BaseModel):
+    batch_number: str
+    expiry_date: date
+    product_id: int
+
+class BatchOut(BatchBase):
+    id: int
+    created_at: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+# ==================== STOCK ====================
+class StockBase(BaseModel):
+    batch_id: int
+    location_id: int
+    quantity: float
+
+class StockOut(StockBase):
+    id: int
+    batch: Optional[BatchOut] = None
+    location: Optional[LocationOut] = None
     model_config = ConfigDict(from_attributes=True)
 
 # ==================== MOVEMENTS ====================

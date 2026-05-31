@@ -462,7 +462,6 @@
                 <div class="content-section">
                     <h2>📊 Панель управления</h2>
                     <div id="statsSection" class="stats-grid">
-                        <!-- Stats will be loaded here -->
                     </div>
                 </div>
 
@@ -498,7 +497,7 @@
                 <div class="content-section">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                         <h2>📦 Товары</h2>
-                        <button class="btn btn-primary">+ Добавить товар</button>
+                        <button class="btn btn-primary" onclick="showAddProductModal()">+ Добавить товар</button>
                     </div>
 
                     <div class="filters">
@@ -586,7 +585,6 @@
                 <div class="content-section">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                         <h2>🚚 Перемещения</h2>
-                        <button class="btn btn-primary">+ Новая операция</button>
                     </div>
 
                     <div class="filters">
@@ -632,8 +630,8 @@
             <div id="reservationsSection" class="section">
                 <div class="content-section">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <h2>🔒 Резервирование</h2>
-                        <button class="btn btn-primary">+ Создать резерв</button>
+                        <h2>🔒 Резервирование (в разработке)  </h2>
+                        <button class="btn btn-primary" onclick="showReservationModal()">+ Создать резерв</button>
                     </div>
 
                     <table>
@@ -688,31 +686,31 @@
                         </div>
                         <div class="org-item">
                             <label>ИНН</label>
-                            <value>7701234567</value>
+                            <value>77067425269</value>
                         </div>
                         <div class="org-item">
                             <label>КПП</label>
-                            <value>770101001</value>
+                            <value>7701011001011</value>
                         </div>
                         <div class="org-item">
                             <label>Адрес</label>
-                            <value>г. Москва, ул. Складская, д. 1</value>
+                            <value>г. Тюмень, ул. Пермякова, д. 1</value>
                         </div>
                         <div class="org-item">
                             <label>Телефон</label>
-                            <value>+7 (495) 123-45-67</value>
+                            <value>+7 (800) 555-35-35 </value>
                         </div>
                         <div class="org-item">
                             <label>Email</label>
                             <value>info@wms-practice.ru</value>
                         </div>
                         <div class="org-item">
-                            <label>Система запущена</label>
-                            <value id="systemStartDate">-</value>
+                            <label>Версия системы</label>
+                            <value>v0.6.7</value>
                         </div>
                         <div class="org-item">
-                            <label>Версия системы</label>
-                            <value>v0.1.0</value>
+                            <label>Примечание</label>
+                            <value>Было выпито 4 кружки кофе, 1 порция окрошки, 5 кусков пиццы, 2 бутера с сыром, а также 2 пропущенные ночи сна</value>
                         </div>
                     </div>
                 </div>
@@ -749,13 +747,11 @@
         let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
         let systemStartTime = new Date();
 
-        // Check if already logged in
         if (authToken && currentUser) {
             showDashboard();
             loadDashboardData();
         }
 
-        // Login form handler
         document.getElementById('loginFormElement').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -794,55 +790,56 @@
             }
         });
 
-        function showDashboard() {
-            document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('dashboard').classList.add('show');
-            
-            document.getElementById('userName').textContent = currentUser.username;
-            const roleBadge = document.getElementById('userRole');
-            roleBadge.textContent = currentUser.role.toUpperCase();
-            roleBadge.className = `badge badge-${currentUser.role}`;
-            
-            // Show Swagger button only for admins
-            if (currentUser && currentUser.role === 'admin') {
-                const swaggerBtn = document.getElementById('btn-swagger');
-                if (swaggerBtn) {
-                    swaggerBtn.style.display = 'inline-block';
-                }
+            function showDashboard() {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('dashboard').classList.add('show');
+                
+                document.getElementById('userName').textContent = currentUser.username;
+                const roleBadge = document.getElementById('userRole');
+                roleBadge.textContent = currentUser.role.toUpperCase();
+                roleBadge.className = `badge badge-${currentUser.role}`;
+                
+                const userRole = currentUser.role;
+                
+                document.querySelectorAll('.btn-nav').forEach(btn => {
+                    const onclick = btn.getAttribute('onclick');
+                    
+                    if (onclick && onclick.includes('swagger')) {
+                        btn.style.display = userRole === 'admin' ? 'inline-block' : 'none';
+                    }
+                });
             }
-        }
 
-        function showSection(sectionName) {
-            // Hide all sections
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.btn-nav').forEach(b => b.classList.remove('active'));
-            
-            // Show selected section
-            document.getElementById(sectionName + 'Section').classList.add('active');
-            
-            // Update nav buttons
-            const navButtons = document.querySelectorAll('.btn-nav');
-            navButtons.forEach(btn => {
-                if (btn.getAttribute('onclick').includes(sectionName)) {
-                    btn.classList.add('active');
+            function showSection(sectionName) {
+                closeAddProductModal();
+                closeReservationModal();
+                
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.querySelectorAll('.btn-nav').forEach(b => b.classList.remove('active'));
+                
+                document.getElementById(sectionName + 'Section').classList.add('active');
+                
+                const navButtons = document.querySelectorAll('.btn-nav');
+                navButtons.forEach(btn => {
+                    if (btn.getAttribute('onclick').includes(sectionName)) {
+                        btn.classList.add('active');
+                    }
+                });
+                
+                if (sectionName === 'dashboard') {
+                    loadDashboardData();
+                } else if (sectionName === 'products') {
+                    loadProducts();
+                } else if (sectionName === 'inventory') {
+                    loadInventory();
+                } else if (sectionName === 'movements') {
+                    loadMovements();
+                } else if (sectionName === 'reservations') {
+                    loadReservations();
+                } else if (sectionName === 'debug') {
+                    showDebugInfo();
                 }
-            });
-            
-            // Load section-specific data
-            if (sectionName === 'dashboard') {
-                loadDashboardData();
-            } else if (sectionName === 'products') {
-                loadProducts();
-            } else if (sectionName === 'inventory') {
-                loadInventory();
-            } else if (sectionName === 'movements') {
-                loadMovements();
-            } else if (sectionName === 'reservations') {
-                loadReservations();
-            } else if (sectionName === 'debug') {
-                showDebugInfo();
             }
-        }
 
         async function loadDashboardData() {
             await loadStats();
@@ -883,69 +880,55 @@
             }
         }
 
-        async function loadProducts() {
-            document.getElementById('productsLoading').classList.remove('hidden');
-            document.getElementById('productsContent').classList.add('hidden');
+                async function loadProducts() {
+            document.getElementById('productsLoading')?.classList.remove('hidden');
+            document.getElementById('productsContent')?.classList.add('hidden');
             
             try {
                 const response = await fetch('/api/reports/stock', {
-                    headers: {
-                        'Authorization': `Bearer ${authToken}`
-                    }
+                    headers: { 'Authorization': `Bearer ${authToken}` }
                 });
                 
                 if (response.ok) {
                     const data = await response.json();
+                    
                     const tbody = document.getElementById('productsTableBody');
+                    if (tbody) {
+                        tbody.innerHTML = '';
+                        if (data.products?.length) {
+                            data.products.forEach(p => {
+                                const row = tbody.insertRow();
+                                row.innerHTML = `
+                                    <td>${p.id}</td><td>${p.sku}</td><td>${p.name}</td>
+                                    <td>${p.category?.name || 'N/A'}</td><td>${p.quantity}</td>
+                                    <td>$${(p.price||0).toFixed(2)}</td><td>${p.unit}</td><td>${p.status}</td>`;
+                            });
+                        }
+                    }
+                    
                     const tbodyFull = document.getElementById('productsTableFullBody');
-                    tbody.innerHTML = '';
-                    tbodyFull.innerHTML = '';
-                    
-                    if (data.products && data.products.length > 0) {
-                        data.products.forEach(product => {
-                            // Main table
-                            const row = tbody.insertRow();
-                            row.innerHTML = `
-                                <td>${product.id}</td>
-                                <td>${product.sku}</td>
-                                <td>${product.name}</td>
-                                <td>${product.category_id || 'N/A'}</td>
-                                <td>${product.quantity}</td>
-                                <td>$${(product.price || 0).toFixed(2)}</td>
-                                <td>${product.unit}</td>
-                                <td>${product.status}</td>
-                            `;
-                            
-                            // Full table
-                            const rowFull = tbodyFull.insertRow();
-                            rowFull.innerHTML = `
-                                <td>${product.sku}</td>
-                                <td>${product.name}</td>
-                                <td>${product.category_id || 'N/A'}</td>
-                                <td>${product.quantity}</td>
-                                <td>${product.unit}</td>
-                                <td>$${(product.price || 0).toFixed(2)}</td>
-                                <td>-</td>
-                                <td>${product.status}</td>
-                                <td><button class="btn btn-primary" style="padding: 5px 10px; font-size: 12px;">Edit</button></td>
-                            `;
-                        });
-                    } else {
-                        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#999;">No products found</td></tr>';
-                        tbodyFull.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#999;">No products found</td></tr>';
+                    if (tbodyFull) {
+                        tbodyFull.innerHTML = '';
+                        if (data.products?.length) {
+                            data.products.forEach(p => {
+                                const row = tbodyFull.insertRow();
+                                row.innerHTML = `
+                                    <td>${p.sku}</td><td>${p.name}</td>
+                                    <td>${p.category?.name || 'N/A'}</td><td>${p.quantity}</td>
+                                    <td>${p.unit}</td><td>$${(p.price||0).toFixed(2)}</td>
+                                    <td>-</td><td>${p.status}</td>
+                                    <td><button class="btn btn-primary" style="padding:5px 10px;font-size:12px;" onclick="editProduct(${p.id})">Edit</button></td>`;
+                            });
+                        } else {
+                            tbodyFull.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#999;">No products found</td></tr>';
+                        }
                     }
                     
-                    document.getElementById('productsLoading').classList.add('hidden');
-                    document.getElementById('productsContent').classList.remove('hidden');
-                } else {
-                    if (response.status === 401) {
-                        logout();
-                    }
+                    document.getElementById('productsLoading')?.classList.add('hidden');
+                    document.getElementById('productsContent')?.classList.remove('hidden');
                 }
             } catch (error) {
                 console.error('Error loading products:', error);
-                document.getElementById('productsLoading').innerHTML = 
-                    '<p style="color:red">Error loading products. Please refresh the page.</p>';
             }
         }
 
@@ -954,26 +937,30 @@
             tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading...</td></tr>';
             
             try {
-                const response = await fetch('/api/reports/stock', {
+                const response = await fetch('/api/inventory', {
                     headers: {
                         'Authorization': `Bearer ${authToken}`
                     }
                 });
                 
                 if (response.ok) {
-                    const data = await response.json();
+                    const inventory = await response.json();
                     tbody.innerHTML = '';
                     
-                    if (data.products && data.products.length > 0) {
-                        data.products.forEach(product => {
+                    if (inventory.length > 0) {
+                        inventory.forEach(item => {
                             const row = tbody.insertRow();
+                            const productName = item.batch?.product?.name || 'N/A';
+                            const batchNumber = item.batch?.batch_number || 'N/A';
+                            const locationCode = item.location?.code || 'N/A';
+                            
                             row.innerHTML = `
-                                <td>${product.name}</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>${product.quantity}</td>
-                                <td>-</td>
-                                <td>${product.status}</td>
+                                <td>${productName}</td>
+                                <td>${batchNumber}</td>
+                                <td>${locationCode}</td>
+                                <td>${item.quantity}</td>
+                                <td>${item.batch?.expiry_date || 'N/A'}</td>
+                                <td>active</td>
                             `;
                         });
                     } else {
@@ -1004,10 +991,12 @@
                     if (movements.length > 0) {
                         movements.forEach(movement => {
                             const row = tbody.insertRow();
+                            const productName = movement.product?.name || `Product ID: ${movement.product_id}`;
+                            
                             row.innerHTML = `
-                                <td>${movement.operation_date || '-'}</td>
+                                <td>${movement.operation_date}</td>
                                 <td>${movement.type}</td>
-                                <td>${movement.product_id}</td>
+                                <td>${productName}</td>
                                 <td>${movement.quantity}</td>
                                 <td>${movement.from_location_id || '-'}</td>
                                 <td>${movement.to_location_id || '-'}</td>
@@ -1026,38 +1015,69 @@
 
         async function loadReservations() {
             const tbody = document.getElementById('reservationsTableBody');
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading...</td></tr>';
+            if (!tbody) return;
+            
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;">Загрузка...</td></tr>';
             
             try {
                 const response = await fetch('/api/reservations', {
-                    headers: {
-                        'Authorization': `Bearer ${authToken}`
-                    }
+                    headers: { 'Authorization': `Bearer ${authToken}` }
                 });
                 
                 if (response.ok) {
                     const reservations = await response.json();
                     tbody.innerHTML = '';
                     
-                    if (reservations.length > 0) {
-                        reservations.forEach(reservation => {
+                    if (reservations && reservations.length > 0) {
+                        reservations.forEach(r => {
                             const row = tbody.insertRow();
+                            const productName = r.product?.name || `ID: ${r.product_id}`;
+                            
                             row.innerHTML = `
-                                <td>${reservation.product_id}</td>
-                                <td>${reservation.quantity}</td>
-                                <td>${reservation.expires_at || '-'}</td>
-                                <td>${reservation.status}</td>
-                                <td>-</td>
-                                <td><button class="btn btn-danger" style="padding: 5px 10px; font-size: 12px;">Cancel</button></td>
+                                <td>${productName}</td>
+                                <td>${r.quantity}</td>
+                                <td>${r.expires_at ? new Date(r.expires_at).toLocaleDateString('ru-RU') : '-'}</td>
+                                <td><span class="badge badge-${r.status === 'active' ? 'admin' : 'warehouse'}">${r.status}</span></td>
+                                <td>${r.created_at ? new Date(r.created_at).toLocaleDateString('ru-RU') : '-'}</td>
+                                <td>
+                                    ${currentUser.role === 'admin' || currentUser.role === 'manager' 
+                                        ? `<button class="btn btn-danger" style="padding:5px 10px;font-size:12px;" onclick="cancelReservation(${r.id})">Отменить</button>` 
+                                        : '-'
+                                    }
+                                </td>
                             `;
                         });
                     } else {
-                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;">No reservations found</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">Резервов не найдено</td></tr>';
                     }
+                } else if (response.status === 401) {
+                    logout();
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:red;padding:20px;">Ошибка: ${response.status}</td></tr>`;
                 }
             } catch (error) {
                 console.error('Error loading reservations:', error);
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:red;">Error loading data</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:red;padding:20px;">Ошибка загрузки данных</td></tr>';
+            }
+        }
+
+        async function cancelReservation(id) {
+            if (!confirm('Отменить этот резерв?')) return;
+            
+            try {
+                const res = await fetch(`/api/reservations/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (res.ok) {
+                    alert('✅ Резерв отменён');
+                    loadReservations();
+                } else {
+                    alert('❌ Не удалось отменить резерв');
+                }
+            } catch (e) {
+                alert('Ошибка: ' + e.message);
             }
         }
 
@@ -1095,15 +1115,58 @@
         }
 
         function generateStockReport() {
-            alert('Generating stock report... (Feature coming soon)');
+            fetch('/api/reports/stock', {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            })
+            .then(r => r.json())
+            .then(data => {
+                let csv = 'ID,SKU,Name,Category,Quantity,Price,Value,Status\n';
+                data.products.forEach(p => {
+                    const value = (p.quantity * p.price).toFixed(2);
+                    csv += `${p.id},"${p.sku}","${p.name}","${p.category?.name||''}",${p.quantity},${p.price},${value},"${p.status}"\n`;
+                });
+                downloadCSV(csv, 'stock_report.csv');
+            })
+            .catch(e => alert('Ошибка генерации отчёта: ' + e.message));
         }
 
         function generateMovementReport() {
-            alert('Generating movement report... (Feature coming soon)');
+            fetch('/api/movements', {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            })
+            .then(r => r.json())
+            .then(data => {
+                let csv = 'Date,Type,Product,Quantity,From,To\n';
+                data.forEach(m => {
+                    csv += `${m.operation_date},"${m.type}","Product ID: ${m.product_id}",${m.quantity},"${m.from_location_id||'-'}","${m.to_location_id||'-'}"\n`;
+                });
+                downloadCSV(csv, 'movements_report.csv');
+            })
+            .catch(e => alert('Ошибка: ' + e.message));
         }
 
         function generateReservationReport() {
-            alert('Generating reservation report... (Feature coming soon)');
+            fetch('/api/reservations', {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            })
+            .then(r => r.json())
+            .then(data => {
+                let csv = 'ID,Product,Quantity,Status,Expires,Created\n';
+                data.forEach(r => {
+                    csv += `${r.id},"Product ID: ${r.product_id}",${r.quantity},"${r.status}","${r.expires_at}","${r.created_at}"\n`;
+                });
+                downloadCSV(csv, 'reservations_report.csv');
+            })
+            .catch(e => alert('Ошибка: ' + e.message));
+        }
+
+        function downloadCSV(content, filename) {
+            const blob = new Blob(['\ufeff' + content], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+            URL.revokeObjectURL(link.href);
         }
 
         function logout() {
@@ -1115,6 +1178,372 @@
             document.getElementById('dashboard').classList.remove('show');
             document.getElementById('loginFormElement').reset();
         }
+
+        function showAddProductModal() {
+            const activeSection = document.querySelector('.section.active');
+            if (activeSection && activeSection.id !== 'productsSection') {
+                alert('Добавление товаров доступно только в разделе "Товары"');
+                return;
+            }
+            
+            loadCategoriesForSelect();
+            document.getElementById('addProductModal').classList.add('show');
+        }
+
+        function closeAddProductModal() {
+            const modal = document.getElementById('addProductModal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.getElementById('addProductForm')?.reset();
+            }
+        }
+
+        async function showAddProductModal() {
+            const modal = document.getElementById('addProductModal');
+            if (!modal) { 
+                console.error('Modal not found'); 
+                return; 
+            }
+            
+            await loadCategoriesForSelect();
+            
+            modal.style.display = 'block';
+        }
+
+        async function loadCategoriesForSelect() {
+            const select = document.getElementById('newCategory');
+            if (!select) return;
+            
+            select.innerHTML = '<option value="">Загрузка...</option>';
+            
+            try {
+                const res = await fetch('/api/categories', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+                if (res.ok) {
+                    const cats = await res.json();
+                    select.innerHTML = '<option value="">Не выбрана</option>';
+                    cats.forEach(c => {
+                        select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                    });
+                } else {
+                    select.innerHTML = '<option value="">Ошибка загрузки</option>';
+                }
+            } catch(e) {
+                console.error('Categories load error:', e);
+                select.innerHTML = '<option value="">Ошибка сети</option>';
+            }
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('addProductModal');
+            if (modal && event.target === modal) {
+                closeAddProductModal();
+            }
+        }
+
+        document.getElementById('addProductForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const payload = {
+                sku: document.getElementById('newSku').value.trim(),
+                name: document.getElementById('newName').value.trim(),
+                category_id: document.getElementById('newCategory').value ? parseInt(document.getElementById('newCategory').value) : null,
+                unit: document.getElementById('newUnit').value.trim() || 'шт',
+                min_stock: parseFloat(document.getElementById('newMinStock').value) || 0,
+                price: parseFloat(document.getElementById('newPrice').value) || 0,
+                status: 'active'
+            };
+            
+            try {
+                const res = await fetch('/api/products', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (res.ok) {
+                    alert('✅ Товар создан!');
+                    closeAddProductModal();
+                    loadProducts();
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    alert('❌ Ошибка: ' + (err.detail || 'Неизвестная ошибка'));
+                }
+            } catch (error) {
+                alert('❌ Ошибка подключения: ' + error.message);
+                console.error('Create product error:', error);
+            }
+        });
+
+        function editProduct(id) {
+            alert(`Редактирование товара ID: ${id}\n(Функция в разработке)`);
+        }
+
+        async function showReservationModal() {
+            const modal = document.getElementById('reservationModal');
+            if (!modal) { console.error('Reservation modal not found'); return; }
+            
+            await Promise.all([
+                loadProductsForSelect(),
+                loadLocationsForSelect()
+            ]);
+            
+            modal.classList.add('show');
+        }
+
+        function closeReservationModal() {
+            const modal = document.getElementById('reservationModal');
+            if (modal) {
+                modal.classList.remove('show');
+                document.getElementById('reservationForm')?.reset();
+            }
+        }
+
+        async function loadProductsForSelect() {
+            const select = document.getElementById('resProduct');
+            if (!select) return;
+            
+            select.innerHTML = '<option value="">Загрузка...</option>';
+            
+            try {
+                const res = await fetch('/api/products', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (res.ok) {
+                    const products = await res.json();
+                    select.innerHTML = '<option value="">Выберите товар</option>';
+                    products.forEach(p => {
+                        select.innerHTML += `<option value="${p.id}">${p.name} (${p.sku})</option>`;
+                    });
+                }
+            } catch(e) { console.error('Products load error:', e); }
+        }
+
+        async function loadLocationsForSelect() {
+            const select = document.getElementById('resLocation');
+            if (!select) return;
+            
+            select.innerHTML = '<option value="">Загрузка...</option>';
+            
+            try {
+                const res = await fetch('/api/locations', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (res.ok) {
+                    const locations = await res.json();
+                    select.innerHTML = '<option value="">Выберите ячейку</option>';
+                    locations.forEach(l => {
+                        select.innerHTML += `<option value="${l.id}">${l.code} - ${l.name}</option>`;
+                    });
+                }
+            } catch(e) { 
+                console.error('Locations load error:', e);
+                select.innerHTML = '<option value="">Недоступно</option>';
+            }
+        }
+
+        document.getElementById('reservationForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const payload = {
+                product_id: parseInt(document.getElementById('resProduct').value),
+                batch_id: parseInt(document.getElementById('resBatch').value),
+                location_id: parseInt(document.getElementById('resLocation').value),
+                quantity: parseFloat(document.getElementById('resQuantity').value),
+                expires_at: document.getElementById('resExpires').value || new Date(Date.now() + 7*24*60*60*1000).toISOString().split('T')[0]
+            };
+            
+            try {
+                const res = await fetch('/api/reservations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (res.ok) {
+                    alert('✅ Резерв создан!');
+                    closeReservationModal();
+                    loadReservations();
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    alert('❌ Ошибка: ' + (err.detail || 'Неизвестная ошибка'));
+                }
+            } catch (error) {
+                alert('❌ Ошибка подключения: ' + error.message);
+            }
+        });
+
+        document.getElementById('resProduct')?.addEventListener('change', async function() {
+            const productId = this.value;
+            const batchSelect = document.getElementById('resBatch');
+            if (!batchSelect || !productId) return;
+            
+            batchSelect.innerHTML = '<option value="">Загрузка...</option>';
+            
+            try {
+                const res = await fetch(`/api/products/${productId}/batches`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (res.ok) {
+                    const batches = await res.json();
+                    batchSelect.innerHTML = '<option value="">Выберите партию</option>';
+                    batches.forEach(b => {
+                        batchSelect.innerHTML += `<option value="${b.id}">${b.batch_number} (до ${b.expiry_date})</option>`;
+                    });
+                }
+            } catch(e) {
+                console.error('Batches load error:', e);
+                batchSelect.innerHTML = '<option value="">Недоступно</option>';
+            }
+        });    
+
+        document.getElementById('addProductForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const payload = {
+                sku: document.getElementById('newSku').value.trim(),
+                name: document.getElementById('newName').value.trim(),
+                category_id: document.getElementById('newCategory').value ? parseInt(document.getElementById('newCategory').value) : null,
+                unit: document.getElementById('newUnit').value.trim() || 'шт',
+                min_stock: parseFloat(document.getElementById('newMinStock').value) || 0,
+                price: parseFloat(document.getElementById('newPrice').value) || 0,
+                status: 'active'
+            };
+            
+            console.log('Sending payload:', payload); // для отладки
+            
+            try {
+                const res = await fetch('/api/products', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                console.log('Response status:', res.status); // для отладки
+                
+                if (res.ok) {
+                    alert('✅ Товар создан!');
+                    closeAddProductModal();
+                    loadProducts();
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    alert('❌ Ошибка: ' + (err.detail || 'Неизвестная ошибка'));
+                    console.error('Server error:', err);
+                }
+            } catch (error) {
+                alert('❌ Ошибка подключения: ' + error.message);
+                console.error('Fetch error:', error);
+            }
+        });
+
+
+        async function manualCreateProduct() {
+            const sku = document.getElementById('newSku').value;
+            const name = document.getElementById('newName').value;
+            const catId = document.getElementById('newCategory').value;
+            const unit = document.getElementById('newUnit').value || 'шт';
+            const minStock = parseFloat(document.getElementById('newMinStock').value) || 0;
+            const price = parseFloat(document.getElementById('newPrice').value) || 0;
+
+            const payload = {
+                sku: sku,
+                name: name,
+                category_id: catId ? parseInt(catId) : null,
+                unit: unit,
+                min_stock: minStock,
+                price: price,
+                initial_quantity: parseFloat(document.getElementById('newQuantity').value) || 0,
+                status: "active"
+            };
+
+            console.log("📦 Данные:", payload);
+
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert("Ошибка: Нет токена авторизации. Войдите снова.");
+                return;
+            }
+
+            try {
+                console.log("🚀 Отправка запроса на сервер...");
+                const response = await fetch('/api/products', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                console.log("📥 Ответ получен. Статус:", response.status);
+
+                if (response.ok) {
+                    document.getElementById('addProductModal').style.display = 'none';
+                    location.reload();
+                } else {
+                    const errorData = await response.json();
+                    console.error("❌ Ошибка сервера:", errorData);
+                    alert("Ошибка: " + (errorData.detail || "Что-то пошло не так"));
+                }
+            } catch (error) {
+                console.error("💥 Ошибка соединения:", error);
+                alert("Не удалось подключиться к серверу");
+            }
+        }
+
     </script>
+
+    <!-- Modal: Add Product -->
+    <div id="addProductModal" class="modal" style="display:none;position:fixed;z-index:2000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);">
+        <div style="background-color:white;margin:10% auto;padding:30px;border-radius:10px;width:90%;max-width:500px;position:relative;box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+            <span onclick="closeAddProductModal()" style="position:absolute;right:20px;top:15px;font-size:28px;font-weight:bold;cursor:pointer;color:#999;">&times;</span>
+            <h3 style="margin-bottom:20px;color:#333;">+ Добавить товар</h3>
+            <form id="addProductForm">
+                <div style="margin-bottom:15px;">
+                    <label style="display:block;margin-bottom:5px;color:#555;font-weight:500;">SKU *</label>
+                    <input type="text" id="newSku" required style="width:100%;padding:10px;border:1px solid #ddd;border-radius:5px;font-size:14px;">
+                </div>
+                <div style="margin-bottom:15px;">
+                    <label style="display:block;margin-bottom:5px;color:#555;font-weight:500;">Название *</label>
+                    <input type="text" id="newName" required style="width:100%;padding:10px;border:1px solid #ddd;border-radius:5px;font-size:14px;">
+                </div>
+                <div style="margin-bottom:15px;">
+                    <label style="display:block;margin-bottom:5px;color:#555;font-weight:500;">Категория</label>
+                    <select id="newCategory" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:5px;font-size:14px;">
+                        <option value="">Загрузка...</option>
+                    </select>
+                </div>
+                <div style="margin-bottom:15px;">
+                    <label style="display:block;margin-bottom:5px;color:#555;font-weight:500;">Ед. измерения</label>
+                    <input type="text" id="newUnit" value="шт" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:5px;font-size:14px;">
+                </div>
+                <div style="margin-bottom:15px;">
+                    <label style="display:block;margin-bottom:5px;color:#555;font-weight:500;">Мин. остаток</label>
+                    <input type="number" id="newMinStock" value="0" step="0.01" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:5px;font-size:14px;">
+                </div>
+                <div style="margin-bottom:15px;">
+                    <label style="display:block;margin-bottom:5px;color:#555;font-weight:500;">Цена</label>
+                    <input type="number" id="newPrice" value="0" step="0.01" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:5px;font-size:14px;">
+                </div>
+                <div style="margin-bottom:15px;">
+                    <label style="display:block;margin-bottom:5px;color:#555;font-weight:500;">Начальное количество</label>
+                    <input type="number" id="newQuantity" value="0" step="0.01" placeholder="0" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:5px;font-size:14px;">
+                </div>
+                <button type="button" class="btn btn-primary" style="width:100%;padding:12px;background:#667eea;color:white;border:none;border-radius:5px;font-size:16px;cursor:pointer;" onclick="manualCreateProduct()">
+                    Создать
+                </button>
+            </form>
+        </div>
+    </div>
 </body>
 </html>

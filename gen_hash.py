@@ -1,5 +1,7 @@
 from passlib.context import CryptContext
 
+# скрипт нужен на создания хэш пароля
+
 pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
 hashed = pwd.hash("warehouse123")  # ← заменить на нужный пароль
 print(f"\n🔐 Ваш хеш:\n{hashed}\n")

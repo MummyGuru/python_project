@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Debug Login</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f4f6f9; }
+        .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; }
+        h2 { margin-top: 0; color: #333; }
+        button { padding: 12px 24px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.2s; }
+        button:hover { background: #218838; transform: translateY(-2px); }
+        button:active { transform: translateY(0); }
+        .status { margin-top: 1rem; font-size: 14px; min-height: 20px; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>🛠️ Debug Mode</h2>
+        <p>Войти как Admin и открыть Swagger</p>
+        <button onclick="loginAndOpen()">Войти как Admin</button>
+        <p id="status" class="status"></p>
+    </div>
+    <script>
+        async function loginAndOpen() {
+            const statusEl = document.getElementById('status');
+            try {
+                statusEl.textContent = 'Выполняется вход...';
+                statusEl.className = 'status';
+                
+                // 1. Логинимся
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'admin', password: 'admin123' }) // <-- Твои креды
+                });
+                
+                if (!res.ok) throw new Error('Ошибка входа (проверь логин/пароль)');
+                
+                const data = await res.json();
+                const token = data.access_token;
+                
+                // 2. Формируем объект авторизации для Swagger UI
+                // Ключ "BearerAuth" стандартный для FastAPI
+                const authData = {
+                    "BearerAuth": {
+                        "name": "Bearer",
+                        "schema": { "type": "http", "scheme": "bearer" },
+                        "value": token
+                    }
+                };
+                
+                // 3. Сохраняем в LocalStorage (Swagger подхватит это)
+                localStorage.setItem('swagger-ui-authorized', JSON.stringify(authData));
+                
+                statusEl.textContent = 'Успех! Переход в Swagger...';
+                statusEl.className = 'status success';
+                
+                // 4. Открываем Swagger
+                setTimeout(() => {
+                    window.location.href = '/docs';
+                }, 500);
+                
+            } catch (e) {
+                statusEl.textContent = 'Ошибка: ' + e.message;
+                statusEl.className = 'status error';
+            }
+        }
+    </script>
+</body>
+</html>

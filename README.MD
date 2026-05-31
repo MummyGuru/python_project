@@ -32,7 +32,7 @@ REST API для системы управления складом (Warehouse Ma
 ### 1. Клонирование репозитория
 
 ```bash
-git clone <url-твоего-репозитория>
+git clone <github.com/MummyGuru/python_project>
 cd WMS-Practice
 ```
 
